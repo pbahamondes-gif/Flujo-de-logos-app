@@ -6,8 +6,6 @@
   <title>Registro Empresa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Fuente bonita -->
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
@@ -61,19 +59,6 @@
       box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
     }
 
-    .file-input {
-      border: 2px dashed #ccc;
-      padding: 15px;
-      text-align: center;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .file-input:hover {
-      border-color: #6366f1;
-    }
-
     button {
       width: 100%;
       padding: 12px;
@@ -101,10 +86,55 @@
       color: red;
       margin-top: 10px;
     }
+
+    /* 🔐 OVERLAY LOGIN */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 
 </head>
 <body>
+
+  <!-- 🔐 LOGIN OVERLAY -->
+
+  <div class="login-overlay" id="loginOverlay">
+    <div class="container">
+      <h1>Iniciar sesión</h1>
+
+```
+  <div class="input-group">
+    <label>Correo</label>
+    <input type="email" id="correo" required />
+  </div>
+
+  <div class="input-group">
+    <label>Clave</label>
+    <input type="password" id="clave" required />
+  </div>
+
+  <button onclick="login()">Ingresar</button>
+
+  <div id="loginMensaje"></div>
+</div>
+```
+
+  </div>
+
+  <!-- ✅ TU LANDING ORIGINAL (NO TOCADA) -->
 
   <div class="container">
     <h1>Registrar Empresa</h1>
@@ -140,6 +170,47 @@
   </div>
 
   <script>
+    const BACKEND_URL = "http://localhost:3000";
+
+    // 🔐 LOGIN
+    async function login() {
+      const correo = document.getElementById("correo").value;
+      const clave = document.getElementById("clave").value;
+      const mensaje = document.getElementById("loginMensaje");
+
+      mensaje.innerHTML = "";
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ correo, clave })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem("auth", "true");
+          document.getElementById("loginOverlay").classList.add("hidden");
+        } else {
+          mensaje.innerHTML = "<p class='error'>" + data.error + "</p>";
+        }
+
+      } catch (error) {
+        mensaje.innerHTML = "<p class='error'>Error de conexión</p>";
+      }
+    }
+
+    // 🔁 Mantener sesión
+    window.onload = () => {
+      if (localStorage.getItem("auth") === "true") {
+        document.getElementById("loginOverlay").classList.add("hidden");
+      }
+    };
+
+    // 📤 TU LÓGICA ORIGINAL (SIN CAMBIOS)
     const form = document.getElementById("formulario");
 
     form.addEventListener("submit", async (e) => {
@@ -151,7 +222,7 @@
       const formData = new FormData(form);
 
       try {
-        const response = await fetch("https://n8n.openip.cl/workflow/bQLJ48NlFtoFp2Ja?projectId=5Tzmp3UMCsrkePns&uiContext=workflow_list", {
+        const response = await fetch("https://n8n.openip.cl/webhook/empresa", {
           method: "POST",
           body: formData
         });

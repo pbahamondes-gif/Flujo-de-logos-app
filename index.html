@@ -26,6 +26,7 @@
       width: 100%;
       max-width: 420px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+      position: relative;
     }
 
     h1 {
@@ -69,10 +70,19 @@
       font-weight: 600;
       cursor: pointer;
       transition: 0.3s;
+      margin-top: 10px;
     }
 
     button:hover {
       background: #4f46e5;
+    }
+
+    .logout-btn {
+      background: #ef4444;
+    }
+
+    .logout-btn:hover {
+      background: #dc2626;
     }
 
     .success {
@@ -87,7 +97,7 @@
       margin-top: 10px;
     }
 
-    /* 🔐 OVERLAY LOGIN */
+    /* 🔐 LOGIN OVERLAY */
     .login-overlay {
       position: fixed;
       top: 0;
@@ -98,7 +108,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 999;
+      z-index: 9999;
     }
 
     .hidden {
@@ -109,7 +119,7 @@
 </head>
 <body>
 
-  <!-- 🔐 LOGIN OVERLAY -->
+  <!-- 🔐 LOGIN -->
 
   <div class="login-overlay" id="loginOverlay">
     <div class="container">
@@ -134,7 +144,7 @@
 
   </div>
 
-  <!-- ✅ TU LANDING ORIGINAL (NO TOCADA) -->
+  <!-- ✅ TU LANDING ORIGINAL -->
 
   <div class="container">
     <h1>Registrar Empresa</h1>
@@ -165,6 +175,9 @@
 
   <div id="mensaje"></div>
 </form>
+
+<!-- 🔓 LOGOUT -->
+<button class="logout-btn" onclick="logout()">Cerrar sesión</button>
 ```
 
   </div>
@@ -203,14 +216,23 @@
       }
     }
 
-    // 🔁 Mantener sesión
+    // 🔓 LOGOUT
+    function logout() {
+      localStorage.removeItem("auth");
+      location.reload();
+    }
+
+    // 🔁 CONTROL DE SESIÓN
     window.onload = () => {
+      // ⚠️ SOLO PARA PRUEBAS: limpiar sesión automática
+      localStorage.removeItem("auth");
+
       if (localStorage.getItem("auth") === "true") {
         document.getElementById("loginOverlay").classList.add("hidden");
       }
     };
 
-    // 📤 TU LÓGICA ORIGINAL (SIN CAMBIOS)
+    // 📤 TU LÓGICA ORIGINAL
     const form = document.getElementById("formulario");
 
     form.addEventListener("submit", async (e) => {

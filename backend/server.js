@@ -1,13 +1,13 @@
 import express from "express";
 import cors from "cors";
 import { pool } from "./db.js";
+import bcrypt from "bcrypt";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// 🔑 LOGIN
 app.post("/login", async (req, res) => {
   try {
     const { correo, clave } = req.body;
@@ -16,19 +16,27 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Faltan datos" });
     }
 
+    // 🔍 Buscar usuario
     const [rows] = await pool.query(
-      "SELECT * FROM cargaLogosCredenciales WHERE correo = ? AND clave = ?",
-      [correo, clave]
+      "SELECT * FROM cargaLogosCredenciales WHERE correo = ?",
+      [correo]
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
+      return res.status(401).json({ error: "Usuario no encontrado" });
+    }
+
+    const usuario = rows[0];
+
+    // 🔐 Comparar bcrypt
+    const match = await bcrypt.compare(clave, usuario.clave);
+
+    if (!match) {
+      return res.status(401).json({ error: "Clave incorrecta" });
     }
 
     return res.json({
-      success: true,
-      mensaje: "Login correcto",
-      usuario: rows[0],
+      success: true
     });
 
   } catch (error) {
@@ -37,7 +45,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// 🚀 SERVER
 app.listen(3000, () => {
-  console.log("Servidor corriendo en http://localhost:3000");
+  console.log("Servidor corriendo");
 });
